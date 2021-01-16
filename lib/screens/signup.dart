@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:quickchat/screens/chatroom.dart';
 import 'package:quickchat/services/auth.dart';
+import 'package:quickchat/services/database.dart';
 import 'package:quickchat/widgets/widget.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class SignUp extends StatefulWidget {
+
+  final Function toggle;
+  SignUp(this.toggle);
+
   @override
   _SignUpState createState() => _SignUpState();
 }
@@ -12,6 +18,7 @@ class _SignUpState extends State<SignUp> {
   final formKey = GlobalKey<FormState>();
 
   AuthMethods authMethods = new AuthMethods();
+  DatabaseMethods databaseMethods=new DatabaseMethods();
 
   TextEditingController usernameController = new TextEditingController();
   TextEditingController emailController = new TextEditingController();
@@ -20,13 +27,19 @@ class _SignUpState extends State<SignUp> {
 
   signup() {
     if (formKey.currentState.validate()) {
+       Map<String,String> userMap={
+        "name":usernameController.text,
+        "email":emailController.text
+      };
       setState(() {
         isloading = true;
       });
 
-      authMethods.SignUpWithEmailAndPassword(
-              emailController.text, passwordController.text)
+      authMethods.SignUpWithEmailAndPassword(emailController.text, passwordController.text)
           .then((value) => print("$value"));
+     
+      databaseMethods.uploadUserInfo(userMap);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> ChatRoom()));
     }
   }
 
@@ -140,11 +153,18 @@ class _SignUpState extends State<SignUp> {
                         children: [
                           Text("Already have an Account? ",
                               style: TextStyle(color: Colors.white)),
-                          Text(
-                            "Sign In Now",
-                            style: TextStyle(
-                                color: Colors.white,
-                                decoration: TextDecoration.underline),
+                          GestureDetector(
+                            onTap: (){
+                              widget.toggle();
+                            },
+                                                      child: Container(
+                              child: Text(
+                                "Sign In Now",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    decoration: TextDecoration.underline),
+                              ),
+                            ),
                           )
                         ],
                       ),

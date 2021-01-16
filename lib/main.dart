@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quickchat/help/authenticate.dart';
+import 'package:quickchat/screens/chatroom.dart';
 import 'package:quickchat/screens/signin.dart';
 import 'package:quickchat/screens/signup.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
         
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: SignUp(),
+      home: ChatRoom(),
     );
   }
 }
