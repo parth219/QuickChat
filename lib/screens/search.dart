@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:quickchat/help/Constants.dart';
+import 'package:quickchat/help/helperfunctions.dart';
+import 'package:quickchat/screens/conversation.dart';
 import 'package:quickchat/services/database.dart';
 import 'package:quickchat/widgets/widget.dart';
 
@@ -7,51 +10,107 @@ class Search extends StatefulWidget {
   @override
   _SearchState createState() => _SearchState();
 }
+String _myName;
 
 class _SearchState extends State<Search> {
-   DatabaseMethods databaseMethods=new DatabaseMethods();
+  DatabaseMethods databaseMethods = new DatabaseMethods();
 
-  TextEditingController searchinfo=new TextEditingController();
-  bool isSearching=false;
+  TextEditingController searchinfo = new TextEditingController();
+  bool isSearching = false;
   Stream usersStream;
   QuerySnapshot snapshot;
-  initiatesearch() async {
-    isSearching=true;
-    usersStream= await databaseMethods.getUserByUsername(searchinfo.text);
-                        
-  }
+  String a = "";
 
- 
-
-  /*
-  Widget searchTile(){
-    return ListView.builder(
-      itemCount: snapshot.docs.length,
-      shrinkWrap: true,
-      itemBuilder: (context,index){
-      return SearchTile(
-        username=snapshot.docs[index].data()["name"],
-        useremail=snapshot.docs[index].data()["email"]
-      );
+  initiatesearch() {
+    databaseMethods.getUserByUsername(searchinfo.text).then((val) {
+      setState(() {
+        snapshot = val;
+      });
     });
   }
-  */
-  Widget searchUsersList(){
-    return StreamBuilder(
-      stream: usersStream,
-      builder: (context,snapshot){
-        return snapshot.hasData ? ListView.builder(
-          itemCount: snapshot.data.docs.length,
-          itemBuilder: (context,index){
-            DocumentSnapshot ds= snapshot.data.docs[index];
-            print(ds["name"]);
-            return Text(ds["name"]);
-          }
-          ): Container(child: Text('Nothing'),);
-      });
+
+  getChatRoomId(String a, String b) {
+    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+      return "$b\_$a";
+    } else {
+      return "$a\_$b";
+    }
   }
+
+  createChatRoomAndStartConversation(
+    String userName,
+  ) {
+    //if (userName != Constants.myName) {
+      String chatRoomId = getChatRoomId(userName, Constants.myName);
+      List<String> users = [userName, Constants.myName];
+      Map<String, dynamic> chatRoomMap = {
+        "users": users,
+        "ChatRoomId": chatRoomId
+      };
+      DatabaseMethods().createChatRoom(chatRoomId, chatRoomMap);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Container()));
+    //}
+  }
+
+  Widget searchTile(String username, String useremail) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(username, style: textfieldstyle()),
+              Text(
+                useremail,
+                style: textfieldstyle(),
+              )
+            ],
+          ),
+          Spacer(),
+          GestureDetector(
+            onTap: () {
+              createChatRoomAndStartConversation(username);
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(25)),
+              child: Text(
+                "Message",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget searchList() {
+    return snapshot != null
+        ? ListView.builder(
+            itemCount: snapshot.docs.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return searchTile(snapshot.docs[index].data()['name'],
+                  snapshot.docs[index].data()["email"]);
+            })
+        : Container();
+  }
+
   @override
-  
+  void initState() {
+    super.initState();
+  }
+
+  getuserinfo()async{
+    _myName= await HelperFunctions.getuserNameSharedPreference();
+    setState(() {
+      
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,11 +138,12 @@ class _SearchState extends State<Search> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: (){
-                        if(searchinfo!=""){
-                        initiatesearch();}
+                      onTap: () {
+                        if (searchinfo.text != "") {
+                          initiatesearch();
+                        }
                       },
-                                          child: Container(
+                      child: Container(
                           height: 40,
                           width: 40,
                           decoration: BoxDecoration(
@@ -98,38 +158,9 @@ class _SearchState extends State<Search> {
                 ),
               ),
             ),
-            searchUsersList()
+            searchList()
           ],
         ),
-      ),
-    );
-  }
-}
-
-class SearchTile extends StatelessWidget {
-  final String username;
-  final String useremail;
-  SearchTile({this.username,this.useremail});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Row(
-        children: [
-          Column(
-            children: [
-              Text(username,style: textfieldstyle()),
-              Text(useremail,style: textfieldstyle(),)
-            ],
-          ),
-          Spacer(),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(25)
-            ),
-            child: Text("Message"),
-          ),
-        ],
       ),
     );
   }

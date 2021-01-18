@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:quickchat/model/user.dart';
 
 
@@ -11,7 +11,7 @@ class AuthMethods{
     return user !=null ? UserClass(userId:user.uid) : null;
   }
 
-  Future SignInWithEmailAndPassword(String email,String password) async{
+  Future signInWithEmailAndPassword(String email,String password) async{
     try{
       UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
       User firebaseUser=result.user;
@@ -21,7 +21,7 @@ class AuthMethods{
     }
   }
 
-  Future SignUpWithEmailAndPassword(String email,String password) async{
+  Future signUpWithEmailAndPassword(String email,String password) async{
     try{
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       User firebaseUser=result.user;

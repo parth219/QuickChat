@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:quickchat/help/helperfunctions.dart';
 import 'package:quickchat/screens/chatroom.dart';
 import 'package:quickchat/services/auth.dart';
 import 'package:quickchat/services/database.dart';
 import 'package:quickchat/widgets/widget.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 
 class SignUp extends StatefulWidget {
 
@@ -17,6 +18,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   final formKey = GlobalKey<FormState>();
 
+ 
   AuthMethods authMethods = new AuthMethods();
   DatabaseMethods databaseMethods=new DatabaseMethods();
 
@@ -31,14 +33,18 @@ class _SignUpState extends State<SignUp> {
         "name":usernameController.text,
         "email":emailController.text
       };
+      HelperFunctions.saveuserEmailSharedPreference(emailController.text.toString());
+      HelperFunctions.saveuserNameSharedPreference(usernameController.text.toString());
+      
       setState(() {
         isloading = true;
       });
 
-      authMethods.SignUpWithEmailAndPassword(emailController.text, passwordController.text)
+      authMethods.signUpWithEmailAndPassword(emailController.text, passwordController.text)
           .then((value) => print("$value"));
      
       databaseMethods.uploadUserInfo(userMap);
+      HelperFunctions.saveuserLoggedInSharedPreference(true);
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> ChatRoom()));
     }
   }
