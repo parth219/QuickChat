@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:quickchat/screens/signin.dart';
 import 'package:quickchat/screens/signup.dart';
 
@@ -25,3 +25,4 @@ class _AuthenticateState extends State<Authenticate> {
     }
   }
 }
+*/

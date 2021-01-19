@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:quickchat/help/authenticate.dart';
-import 'package:quickchat/help/helperfunctions.dart';
-import 'package:quickchat/screens/chatroom.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:quickchat/screens/conversation.dart';
+import 'package:quickchat/screens/home.dart';
+import 'package:quickchat/screens/signin.dart';
+import 'package:quickchat/services/auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,25 +17,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
- 
-  bool isLoggedIn = false;
-  getLoggedInState() async {
-    await HelperFunctions.getuserLoggedInSharedPreference().then((value) {
-      setState(() {
-        if (value != null) {
-          isLoggedIn = value;
-        }
-      });
-    });
-  }
-
-  @override
-  void initState() {
-    getLoggedInState();
-
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -46,7 +26,11 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Authenticate(),
+      home: FutureBuilder(
+          future: AuthMethods().getCurrentUser(),
+          builder: (context, AsyncSnapshot<dynamic> snapshot) {
+            return snapshot.hasData ? Home() : SignIn();
+          }),
     );
   }
 }
